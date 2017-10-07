@@ -1,0 +1,28 @@
+{
+  "name": "infect",
+  "version": "1.0.0",
+  "description": "A game with the goal of infecting all your co-workers in the office!",
+  "main": "src/app.js",
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack-dev-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phylor/infect.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/phylor/infect/issues"
+  },
+  "homepage": "https://github.com/phylor/infect#readme",
+  "devDependencies": {
+    "file-loader": "^1.1.5",
+    "script-loader": "^0.7.2",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.9.1"
+  },
+  "dependencies": {}
+}

@@ -1,3 +1,7 @@
+import 'phaser';
+
+import * as officeFloor from '../assets/gfx/office_floor.svg';
+
 let width = 800;
 let height = 600;
 let tilesize = 50;
@@ -124,7 +128,7 @@ class Employee {
 }
 
 function preload() {
-    game.load.image('floor', '/assets/gfx/office_floor.svg');
+    game.load.image('floor', officeFloor);
 }
 
 function create() {
