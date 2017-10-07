@@ -124,7 +124,7 @@ class Employee {
 }
 
 function preload() {
-    game.load.image('floor', 'office_floor.svg');
+    game.load.image('floor', '/assets/gfx/office_floor.svg');
 }
 
 function create() {
