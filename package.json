@@ -19,6 +19,9 @@
   },
   "homepage": "https://github.com/phylor/infect#readme",
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
     "file-loader": "^1.1.5",
     "script-loader": "^0.7.2",
     "webpack": "^3.6.0",

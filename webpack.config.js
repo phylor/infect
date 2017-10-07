@@ -10,13 +10,26 @@ module.exports = {
 
     module: {
         loaders: [
+            {
+              test: /\.js$/,
+              exclude: /node_modules/,
+              include: [path.resolve(__dirname, 'src')],
+              use: {
+                loader: 'babel-loader',
+                options: {
+                  presets: [require.resolve('babel-preset-env')]
+                }
+              }
+            },
+            { test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3)$/, loader: 'file-loader' },
             { test: /phaser/, loader: 'script-loader' },
-            { test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3)$/, loader: 'file-loader' }
         ]
     },
     resolve: {
-        alias: {
-            'phaser': phaser,
-        }
+      extensions: ['.js'],
+      modules: ['src', 'node_modules'],
+      alias: {
+          'phaser': phaser,
+      }
     }
 }
