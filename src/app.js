@@ -23,6 +23,8 @@ var employees = [];
 
 var walls = [];
 
+var deskInfectionsLeft = 5;
+var deskInfectionsCounter;
 
 
 function preload() {
@@ -112,6 +114,8 @@ function create() {
     playerSprite.body.collideWorldBounds = true;
     
     player.add(playerSprite);
+
+    createUi();
 }
 
 function update() {
@@ -172,10 +176,12 @@ function collisionDetection() {
 
 function playerUseAction() {
     if(useKey.isDown) {
-        if(actionTarget) {
+        if(actionTarget && !actionTarget.isInfected() && deskInfectionsLeft > 0) {
             actionTarget.infect();
             actionTarget.hideAction();
             actionTarget = null;
+            --deskInfectionsLeft;
+            deskInfectionsCounter.setText(deskInfectionsLeft);
         }
     }
 }
@@ -209,6 +215,18 @@ function createWalls() {
 
     walls.push(wall);
   });
+}
+
+function createUi() {
+  let uiGroup = game.add.group();
+
+  let background = game.add.graphics(0, 0);
+  background.beginFill(0x0000FF, 1);
+  background.drawRect(0, 0, 200, 25);
+  uiGroup.add(background);
+
+  deskInfectionsCounter = game.add.text(5, 2, deskInfectionsLeft, { fill: '#fff', font: '16px' });
+  uiGroup.add(deskInfectionsCounter);
 }
 
 function moveEmployees() {
