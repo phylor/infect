@@ -119,10 +119,6 @@ function create() {
     desks.push(new Desk(game, 125, height-50-325, player));
     desks.push(new Desk(game, 125, height-50-270, player));
 
-    let rotatedDesk = new Desk(game, 280, height-50-322, player);
-    rotatedDesk.sprite().rotation = Math.PI / 2;
-    desks.push(rotatedDesk);
-
     // meeting room big
     desks.push(new Desk(game, width-120, 20, player));
     desks.push(new Desk(game, width-120, 70, player));
