@@ -14,12 +14,14 @@ let tilesize = 50;
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update });
 
 var cursors, useKey;
-var player;
+var player, playerSprite;
 var desks = [];
 var actionText, actionTarget;
 
 var employeesGroup;
 var employees = [];
+
+var walls = [];
 
 
 
@@ -28,6 +30,8 @@ function preload() {
 }
 
 function create() {
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
     var floor = game.add.group();
     for(let x = 0; x < width; x += tilesize) {
         for(let y = 0; y < height; y += tilesize) {
@@ -100,69 +104,73 @@ function create() {
     }
     
     
-    var playerSprite = game.add.graphics(0, 0);
+    playerSprite = game.add.graphics(width/2, height/2);
     playerSprite.beginFill(0xFF0000, 0.5);
     playerSprite.drawCircle(0, 0, 40);
-    playerSprite.x = 0;
-    playerSprite.y = 0;
+    playerSprite.anchor.set(0.5, 0.5);
+    game.physics.arcade.enable(playerSprite);
+    playerSprite.body.collideWorldBounds = true;
     
     player.add(playerSprite);
 }
 
 function update() {
+    movePlayer();
+
+    collisionDetection();
+    playerUseAction();
+    
+    moveEmployees();
+}
+
+function movePlayer() {
+    const SPEED = 250;
+
     if(cursors.right.isDown) {
-        player.x += 5;
+        playerSprite.body.velocity.x = SPEED;
     }
     if(cursors.left.isDown) {
-        player.x -= 5;
+        playerSprite.body.velocity.x = -SPEED;
     }
+
+    if(!cursors.left.isDown && !cursors.right.isDown)
+      playerSprite.body.velocity.x = 0;
+
     if(cursors.up.isDown) {
-        player.y -= 5;
+        playerSprite.body.velocity.y = -SPEED;
     }
     if(cursors.down.isDown) {
-        player.y += 5;
+        playerSprite.body.velocity.y = SPEED;
     }
-    
-    if(player.x < 0) player.x = 0;
-    if(player.x+player.width > width) player.x = width-player.width;
-    if(player.y < 0) player.y = 0;
-    if(player.y+player.height > height) player.y = height-player.height;
 
-    let overlappingDesks = desks
-      .filter(desk => !desk.isInfected())
-      .filter(desk => checkOverlap(player, desk.sprite()))
-      .map(desk => {
-        let intersection = Phaser.Rectangle.intersection(player, desk.sprite());
-        let area = intersection.width * intersection.height;
+    if(!cursors.up.isDown && !cursors.down.isDown)
+      playerSprite.body.velocity.y = 0;
+}
 
-        return [area, desk];
-      })
-      .sort((a, b) => {
-        if(a[0] > b[0])
-          return -1;
-        else if(a[0] < b[0])
-          return 1;
-        else
-          return 0;
-      });
-
+function collisionDetection() {
     desks
       .filter(desk => desk != actionTarget)
       .forEach(desk => desk.hideAction());
 
-    if(overlappingDesks.length > 0) {
-      let closestDesk = overlappingDesks[0][1];
+    desks.forEach(desk => {
+      game.physics.arcade.collide(desk.sprite(), playerSprite, () => {
+        desk.showAction();
+        actionTarget = desk;
+      });
 
-      closestDesk.showAction();
-      actionTarget = closestDesk;
-    }
-    else {
-      if(actionTarget)
-        actionTarget.hideAction();
+      employees.forEach(employee => game.physics.arcade.collide(employee.sprite(), desk.sprite(), () => {
+        if(desk.isInfected())
+          employee.infect();
+      }));
+    });
+    walls.forEach(wall => {
+      game.physics.arcade.collide(wall, playerSprite);
 
-      actionTarget = null;
-    }
-    
+      employees.forEach(employee => game.physics.arcade.collide(employee.sprite(), wall));
+    });
+}
+
+function playerUseAction() {
     if(useKey.isDown) {
         if(actionTarget) {
             actionTarget.infect();
@@ -170,17 +178,6 @@ function update() {
             actionTarget = null;
         }
     }
-    
-    checkInfections();
-    
-    moveEmployees();
-}
-
-function checkOverlap(spriteA, spriteB) {
-    var boundsA = spriteA.getBounds();
-    var boundsB = spriteB.getBounds();
-    
-    return Phaser.Rectangle.intersects(boundsA, boundsB);
 }
 
 function createWalls() {
@@ -205,20 +202,14 @@ function createWalls() {
     let wall = game.add.graphics(line[0], line[1]);
     wall.lineStyle(3, 0x000000, 1);
     wall.lineTo(line[2], line[3]);
+
+    game.physics.arcade.enable(wall);
+    wall.body.immovable = true;
+
+    walls.push(wall);
   });
 }
 
 function moveEmployees() {
     employees.forEach(employee => employee.move());
-}
-
-function checkInfections() {
-    desks
-      .filter(desk => desk.isInfected())
-      .forEach(desk => {
-        employees.forEach(employee => {
-          if(checkOverlap(desk.sprite(), employee.sprite()))
-            employee.infect();
-        });
-      });
 }

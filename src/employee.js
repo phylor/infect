@@ -9,8 +9,12 @@ export default class Employee {
         this.employeeSprite.beginFill(0x0000FF, 1);
         this.employeeSprite.drawCircle(0, 0, 30);
         this.employeeSprite.alpha = 0.5;
+        this.employeeSprite.anchor.set(0.5, 0.5);
         
         this.isInfected = false;
+
+        this.game.physics.arcade.enable(this.employeeSprite);
+        this.employeeSprite.body.collideWorldBounds = true;
     }
     
     sprite() {
@@ -18,19 +22,18 @@ export default class Employee {
     }
     
     move() {
-        if(this.isInfected)
-            return;
-        
-        let x = rand(0, 10) - 4.5;
-        let y = rand(0, 10) - 4.5;
-        
-        this.employeeSprite.x += x;
-        this.employeeSprite.y += y;
-        
-        if(this.employeeSprite.x < 0) this.employeeSprite.x = 0;
-        if(this.employeeSprite.x > this.game.width) this.employeeSprite.x = this.game.width;
-        if(this.employeeSprite.y < 0) this.employeeSprite.y = 0;
-        if(this.employeeSprite.y > this.game.height) this.employeeSprite.y = this.game.height;
+        if(this.isInfected) {
+          // We don't have to do anything here, as the sprite is destroyed and recreated upon infection.
+          // Hence, the velocity of the new sprite is 0.
+        }
+        else {
+          const SPEED = 250;
+
+          let x = rand(0, 500) - SPEED;
+          let y = rand(0, 500) - SPEED;
+
+          this.employeeSprite.body.velocity.set(x, y);
+        }
     }
     
     infect() {
