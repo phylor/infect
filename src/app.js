@@ -6,6 +6,7 @@ import Employee from 'employee';
 import { rand } from 'utils';
 
 import officeFloor from '../assets/gfx/office_floor.svg';
+import logo from '../assets/gfx/logo.png';
 
 let width = 800;
 let height = 600;
@@ -15,11 +16,20 @@ var mainMenuState = function(game) {
 };
 
 mainMenuState.prototype = {
+  preload: function() {
+    this.game.load.image('logo', logo);
+  },
+
   create: function() {
-    let title = this.game.add.text(width/2, height/2, "Main Menu", { fill: '#fff', font: '32px' });
-    title.anchor.set(0.5);
-    
-    let startGame = this.game.add.button(width/2, height/2+50, 'button', () => { this.game.state.start("Game"); });
+    this.game.stage.backgroundColor = 0xF5F5F5;
+
+    let logo = this.game.add.sprite(width/2, 100, 'logo');
+    logo.anchor.set(0.5);
+
+    let newGame = this.game.add.text(width/2, height/2, "# New Game", { fill: '#103A4A', font: '32px Helvetica Neue' });
+    newGame.anchor.set(0.5);
+    newGame.inputEnabled = true;
+    newGame.events.onInputDown.add(() => this.game.state.start('Game'), this);
   }
 };
 
