@@ -186,14 +186,15 @@ function createWalls() {
   let toilet1X = 100;
   let toilet2X = 200;
   let wallY = 180;
+  let doorWidth = 65;
 
   let lines = [
     [entranceRightX, 0, 0, wallY],
     [width/2-50, 0, 0, wallY],
     [entranceRightX, wallY, 40, 0],
-    [entranceRightX+40+30, wallY, 100, 0],
+    [entranceRightX+40+doorWidth, wallY, meetingRoomX-entranceRightX-40-doorWidth, 0],
     [meetingRoomX, 0, 0, wallY],
-    [meetingRoomX+30, wallY, width-meetingRoomX-30, 0],
+    [meetingRoomX+doorWidth, wallY, width-meetingRoomX-doorWidth, 0],
     [toilet1X, 0, 0, wallY],
     [toilet2X, 0, 0, wallY]
   ];
