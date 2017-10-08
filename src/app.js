@@ -4,6 +4,7 @@ import Action from 'action';
 import Desk from 'desk';
 import Employee from 'employee';
 import { rand } from 'utils';
+import Pathfinder from 'pathfinder';
 
 import officeFloor from '../assets/gfx/office_floor.svg';
 import logo from '../assets/gfx/logo.png';
@@ -129,11 +130,24 @@ function create() {
 
     createWalls();
 
+    let collisionObjects = desks.map(desk => desk.sprite()).concat(walls);
+    new Pathfinder(game, collisionObjects).staticGraph();
+
     employeesGroup = game.add.group();
-    for(var i = 0; i < 19; ++i) {
-        let x = rand(0, width);
-        let y = rand(0, height);
-        employees.push(new Employee(game, x, y, employeesGroup));
+    for(var i = 0; i < 10; ++i) {
+        var x = rand(0, width);
+        var y = rand(0, height);
+
+        while(collisionObjects.some(sprite => {
+          let bounds = new Phaser.Rectangle().copyFrom(sprite.getBounds());
+          bounds.inflate(30, 30);
+          return bounds.contains(x, y);
+        })) {
+          x = rand(0, width);
+          y = rand(0, height);
+        }
+
+        employees.push(new Employee(game, x, y, employeesGroup, collisionObjects));
     }
     
     
@@ -147,6 +161,7 @@ function create() {
     player.add(playerSprite);
 
     createUi();
+
 }
 
 function update() {
@@ -229,7 +244,7 @@ function createWalls() {
 
   let lines = [
     [entranceRightX, 0, 0, wallY],
-    [width/2-50, 0, 0, wallY],
+    [width/2-75, 0, 0, wallY],
     [entranceRightX, wallY, 40, 0],
     [entranceRightX+40+doorWidth, wallY, meetingRoomX-entranceRightX-40-doorWidth, 0],
     [meetingRoomX, 0, 0, wallY],
