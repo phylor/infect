@@ -44,14 +44,54 @@ function create() {
     
     player = game.add.group();
 
-    desks.push(new Desk(game, width-120, 20, player));
-    desks.push(new Desk(game, width-120, 75, player));
+    // top right
+    desks.push(new Desk(game, width-120, height-50-325, player));
+    desks.push(new Desk(game, width-120, height-50-270, player));
     
-    desks.push(new Desk(game, width-120, 145, player));
-    desks.push(new Desk(game, width-120, 200, player));
+    // top middle
+    desks.push(new Desk(game, width-120, height-50-145, player));
+    desks.push(new Desk(game, width-120, height-50-200, player));
 
-    desks.push(new Desk(game, width/2, 200, player));
-    
+    // bottom right
+    desks.push(new Desk(game, width-120, height-50-75, player));
+    desks.push(new Desk(game, width-120, height-50-20, player));
+
+    desks.push(new Desk(game, width-225, height-50-75, player));
+    desks.push(new Desk(game, width-225, height-50-20, player));
+
+    desks.push(new Desk(game, width-330, height-50-75, player));
+    desks.push(new Desk(game, width-330, height-50-20, player));
+
+    // bottom left
+    desks.push(new Desk(game, 20, height-50-75, player));
+    desks.push(new Desk(game, 20, height-50-20, player));
+
+    desks.push(new Desk(game, 125, height-50-75, player));
+    desks.push(new Desk(game, 125, height-50-20, player));
+
+    desks.push(new Desk(game, 230, height-50-75, player));
+    desks.push(new Desk(game, 230, height-50-20, player));
+
+    // top left
+    desks.push(new Desk(game, 20, height-50-325, player));
+    desks.push(new Desk(game, 20, height-50-270, player));
+
+    desks.push(new Desk(game, 125, height-50-325, player));
+    desks.push(new Desk(game, 125, height-50-270, player));
+
+    let rotatedDesk = new Desk(game, 280, height-50-322, player);
+    rotatedDesk.sprite().rotation = Math.PI / 2;
+    desks.push(rotatedDesk);
+
+    // meeting room big
+    desks.push(new Desk(game, width-120, 20, player));
+    desks.push(new Desk(game, width-120, 70, player));
+
+    // meeting room small
+    desks.push(new Desk(game, width-300, 20, player));
+
+    createWalls();
+
     employeesGroup = game.add.group();
     for(var i = 0; i < 19; ++i) {
         let x = rand(0, width);
@@ -143,23 +183,42 @@ function checkOverlap(spriteA, spriteB) {
     return Phaser.Rectangle.intersects(boundsA, boundsB);
 }
 
+function createWalls() {
+  let entranceRightX = width/2+50;
+  let meetingRoomX = width/2+220;
+  let toilet1X = 100;
+  let toilet2X = 200;
+  let wallY = 180;
+
+  let lines = [
+    [entranceRightX, 0, 0, wallY],
+    [width/2-50, 0, 0, wallY],
+    [entranceRightX, wallY, 40, 0],
+    [entranceRightX+40+30, wallY, 100, 0],
+    [meetingRoomX, 0, 0, wallY],
+    [meetingRoomX+30, wallY, width-meetingRoomX-30, 0],
+    [toilet1X, 0, 0, wallY],
+    [toilet2X, 0, 0, wallY]
+  ];
+
+  lines.forEach(line => {
+    let wall = game.add.graphics(line[0], line[1]);
+    wall.lineStyle(3, 0x000000, 1);
+    wall.lineTo(line[2], line[3]);
+  });
+}
+
 function moveEmployees() {
-    for(var i = 0; i < employees.length; ++i) {
-        employees[i].move();
-    }
+    employees.forEach(employee => employee.move());
 }
 
 function checkInfections() {
-    for(var d = 0; d < desks.length; ++d) {
-        var desk = desks[d];
-        
-        if(!desk.isInfected())
-            return;
-        
-        for(var i = 0; i < employees.length; ++i) {
-            if(checkOverlap(employees[i].sprite(), desk.sprite())) {
-                employees[i].infect();
-            }
-        }
-    }
+    desks
+      .filter(desk => desk.isInfected())
+      .forEach(desk => {
+        employees.forEach(employee => {
+          if(checkOverlap(desk.sprite(), employee.sprite()))
+            employee.infect();
+        });
+      });
 }
