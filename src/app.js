@@ -1,8 +1,11 @@
 import 'phaser';
 
-import 'action';
+import Action from 'action';
+import Desk from 'desk';
+import Employee from 'employee';
+import { rand } from 'utils';
 
-import * as officeFloor from '../assets/gfx/office_floor.svg';
+import officeFloor from '../assets/gfx/office_floor.svg';
 
 let width = 800;
 let height = 600;
@@ -13,84 +16,12 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload:
 var cursors, useKey;
 var player;
 var desks = [];
-var action, actionText, actionTarget;
+var actionText, actionTarget;
 
 var employeesGroup;
 var employees = [];
 
 
-class Desk {
-    
-    constructor(x, y) {
-        this.desk = game.add.graphics(x, y);
-        this.desk.beginFill(0xFF0000, 1);
-        this.desk.drawRect(0, 0, 100, 50);
-        
-        this._isInfected = false;
-    }
-    
-    sprite() {
-        return this.desk;
-    }
-    
-    infect() {
-        this._isInfected = true;
-        
-        this.desk.destroy();
-        this.desk = game.add.graphics(this.desk.x, this.desk.y);
-        this.desk.beginFill(0x00FF00, 1);
-        this.desk.drawRect(0, 0, 100, 50);
-    }
-    
-    isInfected() {
-        return this._isInfected;
-    }
-}
-
-class Employee {
-    
-    constructor(x, y, group) {
-        this.employeeSprite = game.add.graphics(x, y);
-        this.employeeSprite.beginFill(0x0000FF, 1);
-        this.employeeSprite.drawCircle(0, 0, 30);
-        this.employeeSprite.alpha = 0.5;
-        
-        this.isInfected = false;
-    }
-    
-    sprite() {
-        return this.employeeSprite;
-    }
-    
-    move() {
-        if(this.isInfected)
-            return;
-        
-        let x = rand(0, 10) - 4.5;
-        let y = rand(0, 10) - 4.5;
-        
-        this.employeeSprite.x += x;
-        this.employeeSprite.y += y;
-        
-        if(this.employeeSprite.x < 0) this.employeeSprite.x = 0;
-        if(this.employeeSprite.x > width) this.employeeSprite.x = width;
-        if(this.employeeSprite.y < 0) this.employeeSprite.y = 0;
-        if(this.employeeSprite.y > height) this.employeeSprite.y = height;
-    }
-    
-    infect() {
-        if(!this.isInfected) {
-            this.employeeSprite.destroy();
-            
-            this.employeeSprite = game.add.graphics(this.employeeSprite.x, this.employeeSprite.y);
-            this.employeeSprite.beginFill(0x00FF00, 1);
-            this.employeeSprite.drawCircle(0, 0, 30);
-            this.employeeSprite.alpha = 0.5;
-        }
-        
-        this.isInfected = true;
-    }
-}
 
 function preload() {
     game.load.image('floor', officeFloor);
@@ -111,20 +42,23 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
     useKey = game.input.keyboard.addKey(Phaser.Keyboard.E);
     
-    desks.push(new Desk(width-100, 20));
-    desks.push(new Desk(width-100, 75));
+    player = game.add.group();
+
+    desks.push(new Desk(game, width-120, 20, player));
+    desks.push(new Desk(game, width-120, 75, player));
     
-    desks.push(new Desk(width-100, 145));
-    desks.push(new Desk(width-100, 200));
+    desks.push(new Desk(game, width-120, 145, player));
+    desks.push(new Desk(game, width-120, 200, player));
+
+    desks.push(new Desk(game, width/2, 200, player));
     
     employeesGroup = game.add.group();
     for(var i = 0; i < 19; ++i) {
         let x = rand(0, width);
         let y = rand(0, height);
-        employees.push(new Employee(x, y, employeesGroup));
+        employees.push(new Employee(game, x, y, employeesGroup));
     }
     
-    player = game.add.group();
     
     var playerSprite = game.add.graphics(0, 0);
     playerSprite.beginFill(0xFF0000, 0.5);
@@ -133,11 +67,6 @@ function create() {
     playerSprite.y = 0;
     
     player.add(playerSprite);
-    
-    var actionX = player.x + player.width / 2;
-    var actionY = player.y + player.height / 2;
-        
-    action = new Action(actionX, actionY, player, "[E] Infect", function() {});
 }
 
 function update() {
@@ -159,28 +88,45 @@ function update() {
     if(player.y < 0) player.y = 0;
     if(player.y+player.height > height) player.y = height-player.height;
 
-    for(var i = 0; i < desks.length; ++i) {
-        var desk = desks[i];
-        
-        if(checkOverlap(player, desk.sprite())) {
-            if(!desk.isInfected()) {
-                showInfectionAction(player, desk);
-                actionTarget = desk;
-            }
-        }
-        else {
-            if(action) {
-                action.hide();
-            }
+    let overlappingDesks = desks
+      .filter(desk => !desk.isInfected())
+      .filter(desk => checkOverlap(player, desk.sprite()))
+      .map(desk => {
+        let intersection = Phaser.Rectangle.intersection(player, desk.sprite());
+        let area = intersection.width * intersection.height;
 
-            actionTarget = null;
-        }
+        return [area, desk];
+      })
+      .sort((a, b) => {
+        if(a[0] > b[0])
+          return -1;
+        else if(a[0] < b[0])
+          return 1;
+        else
+          return 0;
+      });
+
+    desks
+      .filter(desk => desk != actionTarget)
+      .forEach(desk => desk.hideAction());
+
+    if(overlappingDesks.length > 0) {
+      let closestDesk = overlappingDesks[0][1];
+
+      closestDesk.showAction();
+      actionTarget = closestDesk;
+    }
+    else {
+      if(actionTarget)
+        actionTarget.hideAction();
+
+      actionTarget = null;
     }
     
     if(useKey.isDown) {
-        if(action && action.isActive() && actionTarget) {
+        if(actionTarget) {
             actionTarget.infect();
-            action.hide();
+            actionTarget.hideAction();
             actionTarget = null;
         }
     }
@@ -190,19 +136,11 @@ function update() {
     moveEmployees();
 }
 
-function showInfectionAction(player, desk) {
-    action.show();
-}
-
 function checkOverlap(spriteA, spriteB) {
     var boundsA = spriteA.getBounds();
     var boundsB = spriteB.getBounds();
     
     return Phaser.Rectangle.intersects(boundsA, boundsB);
-}
-
-function rand(from, to) {
-    return Math.floor(Math.random() * to) + from;
 }
 
 function moveEmployees() {
