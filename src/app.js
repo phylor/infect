@@ -59,6 +59,7 @@ var walls = [];
 
 var deskInfectionsLeft = 5;
 var deskInfectionsCounter;
+var healthyLeftCounter;
 
 
 function preload() {
@@ -155,6 +156,8 @@ function update() {
     playerUseAction();
     
     moveEmployees();
+
+    updateInfectedCount();
 }
 
 function movePlayer() {
@@ -257,8 +260,16 @@ function createUi() {
 
   deskInfectionsCounter = game.add.text(5, 2, deskInfectionsLeft, { fill: '#fff', font: '16px' });
   uiGroup.add(deskInfectionsCounter);
+
+  healthyLeftCounter = game.add.text(20, 2, employees.length, { fill: '#fff', font: '16px' });
+  uiGroup.add(healthyLeftCounter);
 }
 
 function moveEmployees() {
     employees.forEach(employee => employee.move());
+}
+
+function updateInfectedCount() {
+  let healthyLeft = employees.filter(employee => !employee.isInfected).length;
+  healthyLeftCounter.setText(healthyLeft);
 }
