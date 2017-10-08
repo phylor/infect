@@ -11,7 +11,31 @@ let width = 800;
 let height = 600;
 let tilesize = 50;
 
+var mainMenuState = function(game) {
+};
+
+mainMenuState.prototype = {
+  create: function() {
+    let title = this.game.add.text(width/2, height/2, "Main Menu", { fill: '#fff', font: '32px' });
+    title.anchor.set(0.5);
+    
+    let startGame = this.game.add.button(width/2, height/2+50, 'button', () => { this.game.state.start("Game"); });
+  }
+};
+
+var gameState = function(game) {
+};
+
+gameState.prototype = {
+  preload: preload,
+  create: create,
+  update: update
+};
+
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update });
+game.state.add("MainMenu", mainMenuState);
+game.state.add("Game", gameState);
+game.state.start("MainMenu");
 
 var cursors, useKey;
 var player, playerSprite;
