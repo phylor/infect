@@ -166,6 +166,8 @@ function create() {
     game.time.events.loop(3 * Phaser.Timer.SECOND, () => timeOfDay = (timeOfDay + 1) % 24, this);
 
     createUi();
+
+    game.input.onUp.add(() => console.log(game.input.activePointer.position), this);
 }
 
 function update() {

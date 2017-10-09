@@ -1,5 +1,6 @@
 import Pathfinder from 'pathfinder';
 import { distance } from 'utils';
+import { sample } from 'lodash';
 
 export default class Employee {
     
@@ -20,7 +21,14 @@ export default class Employee {
         this.pathfinder = new Pathfinder(this.game, collisionObjects);
         this.noPathFound = false;
 
-        this.destination = new Phaser.Point(this.game.width/2, 50);
+        this.possibleDestinations = [
+          new Phaser.Point(this.game.width/2, 50),
+          new Phaser.Point(this.game.width/2, this.game.height-150),
+          new Phaser.Point(120, 230),
+          new Phaser.Point(115, 420),
+          new Phaser.Point(620, 290)
+        ];
+        this.destination = sample(this.possibleDestinations);
     }
     
     sprite() {
@@ -37,6 +45,15 @@ export default class Employee {
           // We don't have to do anything here, as the sprite is destroyed and recreated upon infection.
           // Hence, the velocity of the new sprite is 0.
           this.employeeSprite.body.velocity.set(0);
+
+          if(!this.scheduledMove) {
+            this.scheduledMove = this.game.time.events.add(this.game.rnd.integerInRange(2, 10) * Phaser.Timer.SECOND, () => {
+              this.destination = sample(this.possibleDestinations);
+              this.noPathFound = false;
+              this.employeeSprite.body.velocity.set(0, 0);
+              this.scheduledMove = null;
+            }, this);
+          }
         }
         else {
           const SPEED = 250;
