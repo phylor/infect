@@ -3,7 +3,6 @@ import 'phaser';
 import Action from 'action';
 import Desk from 'desk';
 import Employee from 'employee';
-import { rand } from 'utils';
 import Pathfinder from 'pathfinder';
 
 import officeFloor from '../assets/gfx/office_floor.svg';
@@ -138,16 +137,16 @@ function create() {
 
     employeesGroup = game.add.group();
     for(var i = 0; i < 10; ++i) {
-        var x = rand(0, width);
-        var y = rand(0, height);
+        var x = game.rnd.integerInRange(0, width);
+        var y = game.rnd.integerInRange(0, height);
 
         while(collisionObjects.some(sprite => {
           let bounds = new Phaser.Rectangle().copyFrom(sprite.getBounds());
           bounds.inflate(30, 30);
           return bounds.contains(x, y);
         })) {
-          x = rand(0, width);
-          y = rand(0, height);
+          x = game.rnd.integerInRange(0, width);
+          y = game.rnd.integerInRange(0, height);
         }
 
         employees.push(new Employee(game, x, y, employeesGroup, collisionObjects));

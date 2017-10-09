@@ -1,4 +1,3 @@
-import { rand } from 'utils';
 import Pathfinder from 'pathfinder';
 import { distance } from 'utils';
 
