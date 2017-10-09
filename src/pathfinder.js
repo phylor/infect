@@ -217,4 +217,9 @@ export default class Pathfinder {
       });
     }
   }
+
+  complete() {
+    if(this.probeDebugLine)
+      this.probeDebugLine.destroy();
+  }
 }

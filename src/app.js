@@ -115,11 +115,11 @@ function create() {
     desks.push(new Desk(game, 230, height-50-20, player));
 
     // top left
-    desks.push(new Desk(game, 20, height-50-325, player));
-    desks.push(new Desk(game, 20, height-50-270, player));
+    desks.push(new Desk(game, 20, height-50-275, player));
+    desks.push(new Desk(game, 20, height-50-220, player));
 
-    desks.push(new Desk(game, 125, height-50-325, player));
-    desks.push(new Desk(game, 125, height-50-270, player));
+    desks.push(new Desk(game, 125, height-50-275, player));
+    desks.push(new Desk(game, 125, height-50-220, player));
 
     // meeting room big
     desks.push(new Desk(game, width-120, 20, player));
@@ -161,7 +161,6 @@ function create() {
     player.add(playerSprite);
 
     createUi();
-
 }
 
 function update() {

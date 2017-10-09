@@ -20,6 +20,8 @@ export default class Employee {
 
         this.pathfinder = new Pathfinder(this.game, collisionObjects);
         this.noPathFound = false;
+
+        this.destination = new Phaser.Point(this.game.width/2, 50);
     }
     
     sprite() {
@@ -27,11 +29,12 @@ export default class Employee {
     }
 
     destinationReached() {
-      return distance(this.employeeSprite.x, this.employeeSprite.y, this.game.width/2, 50) < 20;
+      return distance(this.employeeSprite.x, this.employeeSprite.y, this.destination.x, this.destination.y) < 20;
     }
     
     move() {
         if(this.isInfected || this.noPathFound || this.destinationReached()) {
+          if(this.destinationReached()) this.pathfinder.complete();
           // We don't have to do anything here, as the sprite is destroyed and recreated upon infection.
           // Hence, the velocity of the new sprite is 0.
           this.employeeSprite.body.velocity.set(0);
@@ -41,20 +44,18 @@ export default class Employee {
 
           if((this.nextWaypoint && distance(this.employeeSprite.x, this.employeeSprite.y, this.nextWaypoint[0], this.nextWaypoint[1]) < 10) || (this.employeeSprite.body.velocity.x == 0 && this.employeeSprite.body.velocity.y == 0)) {
 
-            this.nextWaypoint = this.pathfinder.findPath(this.employeeSprite.x, this.employeeSprite.y, this.game.width/2, 50);
+            this.nextWaypoint = this.pathfinder.findPath(this.employeeSprite.x, this.employeeSprite.y, this.destination.x, this.destination.y);
 
             if(this.nextWaypoint) {
               let velocity = this.pathfinder.getVelocity(this.employeeSprite.x, this.employeeSprite.y, this.nextWaypoint[0], this.nextWaypoint[1], SPEED);
               this.employeeSprite.body.velocity.set(velocity[0], velocity[1]);
+
+            }
+            else {
+              this.employeeSprite.body.velocity.set(0);
+              this.noPathFound = true;
             }
           }
-          //else {
-          //  //let x = rand(0, 500) - SPEED;
-          //  //let y = rand(0, 500) - SPEED;
-
-          //  this.employeeSprite.body.velocity.set(0);
-          //  this.noPathFound = true;
-          //}
         }
     }
     
@@ -70,4 +71,8 @@ export default class Employee {
         
         this.isInfected = true;
     }
+
+  goTo(x, y) {
+    this.destination = new Phaser.Point(x, y)
+  }
 }
