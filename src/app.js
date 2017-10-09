@@ -88,47 +88,27 @@ function create() {
     
     player = game.add.group();
 
-    // top right
-    desks.push(new Desk(game, width-120, height-50-325, player));
-    desks.push(new Desk(game, width-120, height-50-270, player));
-    
-    // top middle
-    desks.push(new Desk(game, width-120, height-50-145, player));
-    desks.push(new Desk(game, width-120, height-50-200, player));
-
     // bottom right
-    desks.push(new Desk(game, width-120, height-50-75, player));
-    desks.push(new Desk(game, width-120, height-50-20, player));
+    desks.push(new Desk(game, width-220, height-50-115, player));
+    desks.push(new Desk(game, width-220, height-50-60, player));
 
-    desks.push(new Desk(game, width-225, height-50-75, player));
-    desks.push(new Desk(game, width-225, height-50-20, player));
-
-    desks.push(new Desk(game, width-330, height-50-75, player));
-    desks.push(new Desk(game, width-330, height-50-20, player));
+    desks.push(new Desk(game, width-325, height-50-115, player));
+    desks.push(new Desk(game, width-325, height-50-60, player));
 
     // bottom left
-    desks.push(new Desk(game, 20, height-50-75, player));
-    desks.push(new Desk(game, 20, height-50-20, player));
-
-    desks.push(new Desk(game, 125, height-50-75, player));
-    desks.push(new Desk(game, 125, height-50-20, player));
-
-    desks.push(new Desk(game, 230, height-50-75, player));
-    desks.push(new Desk(game, 230, height-50-20, player));
+    desks.push(new Desk(game, 70, height-50-75, player));
+    desks.push(new Desk(game, 175, height-50-75, player));
 
     // top left
-    desks.push(new Desk(game, 20, height-50-275, player));
-    desks.push(new Desk(game, 20, height-50-220, player));
+    desks.push(new Desk(game, 70, height-50-285, player));
+    desks.push(new Desk(game, 70, height-50-230, player));
 
-    desks.push(new Desk(game, 125, height-50-275, player));
-    desks.push(new Desk(game, 125, height-50-220, player));
+    desks.push(new Desk(game, 175, height-50-285, player));
+    desks.push(new Desk(game, 175, height-50-230, player));
 
     // meeting room big
-    desks.push(new Desk(game, width-120, 20, player));
-    desks.push(new Desk(game, width-120, 70, player));
-
-    // meeting room small
-    desks.push(new Desk(game, width-300, 20, player));
+    desks.push(new Desk(game, width-230, 80, player));
+    desks.push(new Desk(game, width-230, 150, player));
 
     createWalls();
 
@@ -246,16 +226,12 @@ function createWalls() {
   let meetingRoomX = width/2+220;
   let toilet1X = 100;
   let toilet2X = 200;
-  let wallY = 180;
+  let wallY = 150;
   let doorWidth = 65;
 
   let lines = [
     [entranceRightX, 0, 0, wallY],
     [width/2-75, 0, 0, wallY],
-    [entranceRightX, wallY, 40, 0],
-    [entranceRightX+40+doorWidth, wallY, meetingRoomX-entranceRightX-40-doorWidth, 0],
-    [meetingRoomX, 0, 0, wallY],
-    [meetingRoomX+doorWidth, wallY, width-meetingRoomX-doorWidth, 0],
     [toilet1X, 0, 0, wallY],
     [toilet2X, 0, 0, wallY]
   ];

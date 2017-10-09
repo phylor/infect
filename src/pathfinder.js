@@ -55,10 +55,7 @@ export default class Pathfinder {
     let probeCoordinates = this.probeLine.coordinatesOnLine();
 
     let hasCollision = this.collisionBounds().some(bounds => {
-      let inflated = new Phaser.Rectangle().copyFrom(bounds);
-      inflated.inflate(30, 30);
-
-      return probeCoordinates.some(coordinate => inflated.contains(coordinate[0], coordinate[1]));
+      return probeCoordinates.some(coordinate => bounds.contains(coordinate[0], coordinate[1]));
     });
 
     return !hasCollision;
@@ -70,15 +67,26 @@ export default class Pathfinder {
 
   staticGraph() {
     this.game.stage.updateTransform();
-    Pathfinder.collisionCachedBounds = this.collisionObjects.map(sprite => new Phaser.Rectangle().copyFrom(sprite.getBounds()));
+    Pathfinder.collisionCachedBounds = this.collisionObjects.map(sprite => new Phaser.Rectangle().copyFrom(sprite.getBounds()).inflate(30, 30));
+    if(!Pathfinder.debugBoundsShown) {
+      let boundsGroup = this.game.add.group();
+
+      Pathfinder.collisionCachedBounds.forEach(bounds => {
+        let area = this.game.add.graphics(bounds.x, bounds.y);
+        area.beginFill(0xFFFF00, 0.4);
+        area.drawRect(0, 0, bounds.width, bounds.height);
+        boundsGroup.add(area);
+      });
+
+      console.log('# bounds: ' + Pathfinder.collisionCachedBounds.length);
+
+      Pathfinder.debugBoundsShown = true;
+    }
 
     var g = new Graph();
     Pathfinder.cachedG = g;
 
-    this.collisionBounds().forEach(spriteBounds => {
-      let bounds = new Phaser.Rectangle().copyFrom(spriteBounds);
-      bounds.inflate(30, 30);
-
+    this.collisionBounds().forEach(bounds => {
       var points = [
         [bounds.x, bounds.y],
         [bounds.x+bounds.width, bounds.y],

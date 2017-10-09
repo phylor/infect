@@ -26,7 +26,9 @@ export default class Employee {
           new Phaser.Point(this.game.width/2, this.game.height-150),
           new Phaser.Point(120, 230),
           new Phaser.Point(115, 420),
-          new Phaser.Point(620, 290)
+          new Phaser.Point(620, 290),
+          new Phaser.Point(400, 550),
+          new Phaser.Point(720, 30)
         ];
         this.destination = sample(this.possibleDestinations);
     }
