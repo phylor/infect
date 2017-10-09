@@ -115,7 +115,7 @@ function create() {
     let collisionObjects = desks.map(desk => desk.sprite()).concat(walls);
 
     employeesGroup = game.add.group();
-    for(var i = 0; i < 10; ++i) {
+    for(var i = 0; i < 20; ++i) {
         var x = game.rnd.integerInRange(0, width);
         var y = game.rnd.integerInRange(0, height);
 
