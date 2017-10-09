@@ -61,6 +61,9 @@ var walls = [];
 var deskInfectionsLeft = 5;
 var deskInfectionsCounter;
 var healthyLeftCounter;
+var timeCounter;
+
+var timeOfDay = 0;
 
 
 function preload() {
@@ -160,6 +163,9 @@ function create() {
     
     player.add(playerSprite);
 
+    timeOfDay = 0;
+    game.time.events.loop(3 * Phaser.Timer.SECOND, () => timeOfDay = (timeOfDay + 1) % 24, this);
+
     createUi();
 }
 
@@ -172,6 +178,8 @@ function update() {
     moveEmployees();
 
     updateInfectedCount();
+
+    timeCounter.setText(toHumanTime(timeOfDay));
 }
 
 function movePlayer() {
@@ -277,6 +285,13 @@ function createUi() {
 
   healthyLeftCounter = game.add.text(20, 2, employees.length, { fill: '#fff', font: '16px' });
   uiGroup.add(healthyLeftCounter);
+
+  timeCounter = game.add.text(55, 2, toHumanTime(timeOfDay), { fill: '#fff', font: '16px' });
+  uiGroup.add(timeCounter);
+}
+
+function toHumanTime(time) {
+  return time.toString().padStart(2, '0') + ':00';
 }
 
 function moveEmployees() {
