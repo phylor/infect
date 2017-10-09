@@ -97,8 +97,6 @@ export default class Pathfinder {
         boundsGroup.add(area);
       });
 
-      console.log('# bounds: ' + Pathfinder.collisionCachedBounds.length);
-
       Pathfinder.debugBoundsShown = true;
     }
 
@@ -225,7 +223,7 @@ export default class Pathfinder {
     }
 
     if(closedList.indexOf(endNode) == -1) {
-      //console.log('No path found to ' + endNode);
+      console.log('No path found to ' + endNode);
       return null;
     }
     else {

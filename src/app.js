@@ -4,7 +4,7 @@ import Action from 'action';
 import Desk from 'desk';
 import Employee from 'employee';
 import Pathfinder from 'pathfinder';
-import { sample } from 'lodash';
+import { sample, compact, difference } from 'lodash';
 
 import officeFloor from '../assets/gfx/office_floor.svg';
 import logo from '../assets/gfx/logo.png';
@@ -134,12 +134,13 @@ function create() {
     }
 
     employees.forEach(employee => {
-      let randomDesk = sample(desks.filter(desk => desk.getEmployee() == null));
+      let takenDesks = compact(employees.map(employee => employee.getDesk()));
+      let freeDesks = difference(desks, takenDesks);
+      let randomDesk = sample(freeDesks);
 
       // If there are no more free desks, ignore it (we might have more employees than desks)
       if(randomDesk) {
         employee.setDesk(randomDesk);
-        randomDesk.setEmployee(employee);
       }
     });
     
@@ -283,7 +284,7 @@ function toHumanTime(time) {
 
 function moveEmployees() {
   game.stage.updateTransform();
-  employees.filter(employee => !employee.hasDestination() && employee.hasDesk()).forEach(employee => employee.goToDesk());
+  employees.filter(employee => !employee.hasDestination() && employee.hasDesk() && employee.getDesk().getEmployee() == null).forEach(employee => employee.goToDesk());
   employees.forEach(employee => employee.move());
   employees.forEach(employee => employee.roam());
 }

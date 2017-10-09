@@ -32,6 +32,7 @@ export default class Employee {
     ];
     this.destination = null;
     this.freelyMoves = true;
+    this.state = 'idle';
   }
   
   sprite() {
@@ -46,6 +47,16 @@ export default class Employee {
   }
   
   roam() {
+    if(this.hasDestination())
+      return;
+
+    let chance = this.game.rnd.integerInRange(1, 3);
+
+    if(chance == 1 && this.hasDesk() && this.getDesk().getEmployee() == null) {
+      this.goToDesk();
+      return;
+    }
+
     if(!this.scheduledMove && this.freelyMoves) {
       this.scheduledMove = this.game.time.events.add(this.game.rnd.integerInRange(2, 10) * Phaser.Timer.SECOND, () => {
         let newDestination = sample(this.possibleDestinations);
@@ -71,7 +82,7 @@ export default class Employee {
       this.pathfinder.complete();
       // TODO: we need to differentiate between the destination (could be a location on a collision object)
       // and the path finding destination
-      this.teleportTo(this.destination.x, this.destination.y);
+      if(this.hasDesk() && this.state == 'sitting-down') this.sitDown(this.destination.x, this.destination.y);
       this.destination = null;
     }
     else {
@@ -112,6 +123,16 @@ export default class Employee {
     if(this.isInfected)
       return;
 
+    if(this.desk && this.desk.getEmployee() == this) {
+      let bounds = new Phaser.Rectangle().copyFrom(this.desk.sprite().getBounds());
+      bounds.inflate(30, 30);
+
+      this.teleportTo(bounds.x + bounds.width/2, this.desk.sprite().getBounds().y == this.desk.getSeatPosition().y ? bounds.y : bounds.y+bounds.height);
+
+      this.desk.setEmployee(null);
+    }
+
+    this.state = 'moving';
     this.destination = new Phaser.Point(x, y);
     this.noPathFound = false;
     this.employeeSprite.body.velocity.set(0, 0);
@@ -121,6 +142,10 @@ export default class Employee {
 
   setDesk(desk) {
     this.desk = desk;
+  }
+
+  getDesk() {
+    return this.desk;
   }
 
   hasDesk() {
@@ -134,8 +159,8 @@ export default class Employee {
     let bounds = new Phaser.Rectangle().copyFrom(this.desk.sprite().getBounds());
     bounds.inflate(20, 20);
 
-    console.log(this.desk.sprite().getBounds().y + ' [' + this.desk.getSeatPosition().y + ']');
     this.goTo(bounds.x + bounds.width/2, this.desk.sprite().getBounds().y == this.desk.getSeatPosition().y ? bounds.y : bounds.y+bounds.height);
+    this.state = 'sitting-down';
   }
 
   hasDestination() {
@@ -146,9 +171,17 @@ export default class Employee {
     return this.destination;
   }
 
-  teleportTo(x, y) {
+  sitDown(x, y) {
     if(!this.hasDesk()) return;
     let seatPosition = this.desk.getSeatPosition();
     this.employeeSprite.position.set(seatPosition.x, seatPosition.y);
+    this.desk.setEmployee(this);
+    this.destination = null;
+    this.state = 'sitting';
+  }
+
+  teleportTo(x, y) {
+    this.stop();
+    this.employeeSprite.position.set(x, y);
   }
 }
