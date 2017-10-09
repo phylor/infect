@@ -121,7 +121,8 @@ function create() {
 
         while(collisionObjects.some(spriteBounds => {
           let bounds = new Phaser.Rectangle().copyFrom(spriteBounds);
-          bounds.inflate(30, 30);
+          bounds.inflate(60, 60);
+
           return bounds.contains(x, y);
         })) {
           x = game.rnd.integerInRange(0, width);

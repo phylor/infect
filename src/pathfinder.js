@@ -67,7 +67,7 @@ export default class Pathfinder {
 
   staticGraph() {
     this.game.stage.updateTransform();
-    Pathfinder.collisionCachedBounds = this.collisionObjects.map(sprite => new Phaser.Rectangle().copyFrom(sprite.getBounds()).inflate(30, 30));
+    Pathfinder.collisionCachedBounds = this.collisionObjects.map(sprite => new Phaser.Rectangle().copyFrom(sprite.getBounds()).inflate(15, 15));
     if(!Pathfinder.debugBoundsShown) {
       let boundsGroup = this.game.add.group();
 
