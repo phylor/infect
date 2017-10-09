@@ -109,6 +109,9 @@ export default class Employee {
   }
 
   goTo(x, y) {
+    if(this.isInfected)
+      return;
+
     this.destination = new Phaser.Point(x, y);
     this.noPathFound = false;
     this.employeeSprite.body.velocity.set(0, 0);
@@ -144,6 +147,7 @@ export default class Employee {
   }
 
   teleportTo(x, y) {
+    if(!this.hasDesk()) return;
     let seatPosition = this.desk.getSeatPosition();
     this.employeeSprite.position.set(seatPosition.x, seatPosition.y);
   }

@@ -285,6 +285,7 @@ function moveEmployees() {
   game.stage.updateTransform();
   employees.filter(employee => !employee.hasDestination() && employee.hasDesk()).forEach(employee => employee.goToDesk());
   employees.forEach(employee => employee.move());
+  employees.forEach(employee => employee.roam());
 }
 
 function updateInfectedCount() {
