@@ -4,6 +4,7 @@ import Action from 'action';
 import Desk from 'desk';
 import Employee from 'employee';
 import Pathfinder from 'pathfinder';
+import { sample } from 'lodash';
 
 import officeFloor from '../assets/gfx/office_floor.svg';
 import logo from '../assets/gfx/logo.png';
@@ -89,26 +90,26 @@ function create() {
     player = game.add.group();
 
     // bottom right
-    desks.push(new Desk(game, width-220, height-50-115, player));
-    desks.push(new Desk(game, width-220, height-50-60, player));
+    desks.push(new Desk(game, width-220, height-50-115, height-50-115));
+    desks.push(new Desk(game, width-220, height-50-60, height-60));
 
-    desks.push(new Desk(game, width-325, height-50-115, player));
-    desks.push(new Desk(game, width-325, height-50-60, player));
+    desks.push(new Desk(game, width-325, height-50-115, height-50-115));
+    desks.push(new Desk(game, width-325, height-50-60, height-60));
 
     // bottom left
-    desks.push(new Desk(game, 70, height-50-75, player));
-    desks.push(new Desk(game, 175, height-50-75, player));
+    desks.push(new Desk(game, 70, height-50-75, height-50-75));
+    desks.push(new Desk(game, 175, height-50-75, height-50-75));
 
     // top left
-    desks.push(new Desk(game, 70, height-50-285, player));
-    desks.push(new Desk(game, 70, height-50-230, player));
+    desks.push(new Desk(game, 70, height-50-285, height-50-285));
+    desks.push(new Desk(game, 70, height-50-230, height-230));
 
-    desks.push(new Desk(game, 175, height-50-285, player));
-    desks.push(new Desk(game, 175, height-50-230, player));
+    desks.push(new Desk(game, 175, height-50-285, height-50-285));
+    desks.push(new Desk(game, 175, height-50-230, height-230));
 
     // meeting room big
-    desks.push(new Desk(game, width-230, 80, player));
-    desks.push(new Desk(game, width-230, 150, player));
+    desks.push(new Desk(game, width-230, 80, 80));
+    desks.push(new Desk(game, width-230, 150, 200));
 
     createWalls();
 
@@ -131,7 +132,16 @@ function create() {
 
         employees.push(new Employee(game, x, y, employeesGroup, collisionObjects));
     }
-    
+
+    employees.forEach(employee => {
+      let randomDesk = sample(desks.filter(desk => desk.getEmployee() == null));
+
+      // If there are no more free desks, ignore it (we might have more employees than desks)
+      if(randomDesk) {
+        employee.setDesk(randomDesk);
+        randomDesk.setEmployee(employee);
+      }
+    });
     
     playerSprite = game.add.graphics(width/2, height/2);
     playerSprite.beginFill(0xFF0000, 0.5);
@@ -272,7 +282,9 @@ function toHumanTime(time) {
 }
 
 function moveEmployees() {
-    employees.forEach(employee => employee.move());
+  game.stage.updateTransform();
+  employees.filter(employee => !employee.hasDestination() && employee.hasDesk()).forEach(employee => employee.goToDesk());
+  employees.forEach(employee => employee.move());
 }
 
 function updateInfectedCount() {

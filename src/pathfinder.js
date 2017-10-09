@@ -7,41 +7,60 @@ const TILE_SIZE = 30;
 
 export default class Pathfinder {
 
-  constructor(game, collisionObjects) {
+  constructor(game, collisionObjects, startingPoint, endPoint) {
     this.game = game;
     this.collisionObjects = collisionObjects;
+    this.startingPoint = startingPoint;
+    this.endPoint = endPoint;
   }
 
-  findPath(fromX, fromY, toX, toY) {
+  hasFoundPath() {
+    return !!this.path;
+  }
+
+  findPath() {
     // TODO: hack: we can't calculate the graph during Game::create() because the sprites are not 
     // positioned yet (x == y == 0). We have to wait until the rendering is done. We calculate the 
     // graph as soon as someone asks for a route (because then the rendering is done).
     if(!Pathfinder.cachedG) this.staticGraph();
     if(!Pathfinder.collisionCachedBounds) return null;
 
+    let fromX = this.startingPoint.x;
+    let fromY = this.startingPoint.y;
+    let toX = this.endPoint.x;
+    let toY = this.endPoint.y;
+
     let directPath = this.hasDirectPath(fromX, fromY, toX, toY);
 
-    var nextWaypoint;
-
     if(directPath)
-      nextWaypoint = [toX, toY];
+      this.path = [[toX, toY]];
     else {
-      let path = this.graph(fromX, fromY, toX, toY);
-
-      nextWaypoint = path ? path[0] : null;
+      this.path = this.graph(fromX, fromY, toX, toY);
     }
+  }
 
-    if(nextWaypoint) {
+  getNextWaypoint() {
+    if(this.path.length == 0)
+      return null;
+
+    let waypoint = this.path[0];
+    let fromX = this.startingPoint.x, fromY = this.startingPoint.y;
+
+    if(waypoint) {
       if(this.probeDebugLine)
         this.probeDebugLine.destroy();
 
       this.probeDebugLine = this.game.add.graphics(fromX, fromY);
-      this.probeDebugLine.lineStyle(3, directPath ? 0xff0000 : 0x00ff00, 1);
-      this.probeDebugLine.lineTo(nextWaypoint[0]-fromX, nextWaypoint[1]-fromY);
+      this.probeDebugLine.lineStyle(3, 0xffff00, 1);
+      this.probeDebugLine.lineTo(waypoint[0]-fromX, waypoint[1]-fromY);
       this.game.world.add(this.probeDebugLine);
     }
 
-    return nextWaypoint;
+    return new Phaser.Point(waypoint[0], waypoint[1]);
+  }
+
+  popWaypoint() {
+    this.path.pop();
   }
 
   getVelocity(fromX, fromY, toX, toY, SPEED) {

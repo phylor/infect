@@ -4,7 +4,7 @@ import Action from 'action';
 
 export default class Desk {
 
-  constructor(game, x, y, player) {
+  constructor(game, x, y, seatY) {
     this.game = game;
     this._isInfected = false;
 
@@ -14,6 +14,10 @@ export default class Desk {
 
     this.action = new Action(game, x, y, this.group, "[E] Infect", function() {});
     this.action.hide();
+
+    this.employee = null;
+
+    this.seatY = seatY;
   }
   
   sprite() {
@@ -50,5 +54,17 @@ export default class Desk {
     this.desk.body.immovable = true;
 
     this.group.add(this.desk);
+  }
+
+  setEmployee(employee) {
+    this.employee = employee;
+  }
+
+  getEmployee() {
+    return this.employee;
+  }
+
+  getSeatPosition() {
+    return new Phaser.Point(this.sprite().getBounds().x+this.sprite().getBounds().width/2, this.seatY);
   }
 }
