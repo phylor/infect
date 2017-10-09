@@ -13,7 +13,11 @@ export default class Pathfinder {
   }
 
   findPath(fromX, fromY, toX, toY) {
-    this.game.stage.updateTransform();
+    // TODO: hack: we can't calculate the graph during Game::create() because the sprites are not 
+    // positioned yet (x == y == 0). We have to wait until the rendering is done. We calculate the 
+    // graph as soon as someone asks for a route (because then the rendering is done).
+    if(!Pathfinder.cachedG) this.staticGraph();
+    if(!Pathfinder.collisionCachedBounds) return null;
 
     let directPath = this.hasDirectPath(fromX, fromY, toX, toY);
 
@@ -50,31 +54,29 @@ export default class Pathfinder {
     this.probeLine = new Phaser.Line(fromX, fromY, toX, toY);
     let probeCoordinates = this.probeLine.coordinatesOnLine();
 
-    let hasCollision = this.collisionSprites().some(sprite => {
-      return this.spriteHasCoordinates(sprite, probeCoordinates);
+    let hasCollision = this.collisionBounds().some(bounds => {
+      let inflated = new Phaser.Rectangle().copyFrom(bounds);
+      inflated.inflate(30, 30);
+
+      return probeCoordinates.some(coordinate => inflated.contains(coordinate[0], coordinate[1]));
     });
 
     return !hasCollision;
   }
 
-  spriteHasCoordinates(sprite, coordinates) {
-    let bounds = cloneDeep(sprite.getBounds());
-    bounds.inflate(30, 30);
-    return coordinates.some(coordinate => bounds.contains(coordinate[0], coordinate[1]));
-  }
-
-  collisionSprites() {
-    return this.collisionObjects;
-    //return this.game.world.children.filter(sprite => sprite.body && sprite.body.immovable);
+  collisionBounds() {
+    return Pathfinder.collisionCachedBounds;
   }
 
   staticGraph() {
     this.game.stage.updateTransform();
+    Pathfinder.collisionCachedBounds = this.collisionObjects.map(sprite => new Phaser.Rectangle().copyFrom(sprite.getBounds()));
+
     var g = new Graph();
     Pathfinder.cachedG = g;
 
-    this.collisionSprites().forEach(sprite => {
-      let bounds = new Phaser.Rectangle().copyFrom(sprite.getBounds());
+    this.collisionBounds().forEach(spriteBounds => {
+      let bounds = new Phaser.Rectangle().copyFrom(spriteBounds);
       bounds.inflate(30, 30);
 
       var points = [
@@ -84,14 +86,13 @@ export default class Pathfinder {
         [bounds.x+bounds.width, bounds.y+bounds.height]
       ];
 
-      // cap points to world
+      // cap points to world (otherwise we find paths which go around outside the world boundaries)
       points = points.map(point => [point[0] < 0 ? 0 : point[0], point[1] < 0 ? 0 : point[1]]);
 
       points.forEach(point => g.setNode(point.toString(), { x: point[0], y: point[1] }));
     });
 
     this.findVisibleNodes(g, g.nodes());
-    //return g;
   }
 
   findVisibleNodes(g, nodes) {
@@ -108,9 +109,8 @@ export default class Pathfinder {
   }
 
   graph(fromX, fromY, toX, toY) {
+    if(!Pathfinder.cachedG) this.staticGraph();
     let g = cloneDeep(Pathfinder.cachedG);
-    //if(!this.g) this.g = this.staticGraph();
-    //let g = this.g;
 
     g.setNode([fromX, fromY].toString(), { x: fromX, y: fromY, gScore: 0 });
     g.setNode([toX, toY].toString(), { x: toX, y: toY });

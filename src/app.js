@@ -133,15 +133,14 @@ function create() {
     createWalls();
 
     let collisionObjects = desks.map(desk => desk.sprite()).concat(walls);
-    new Pathfinder(game, collisionObjects).staticGraph();
 
     employeesGroup = game.add.group();
     for(var i = 0; i < 10; ++i) {
         var x = game.rnd.integerInRange(0, width);
         var y = game.rnd.integerInRange(0, height);
 
-        while(collisionObjects.some(sprite => {
-          let bounds = new Phaser.Rectangle().copyFrom(sprite.getBounds());
+        while(collisionObjects.some(spriteBounds => {
+          let bounds = new Phaser.Rectangle().copyFrom(spriteBounds);
           bounds.inflate(30, 30);
           return bounds.contains(x, y);
         })) {
