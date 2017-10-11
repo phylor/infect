@@ -46,9 +46,7 @@ export default class Desk {
     if(this.desk)
       this.desk.destroy();
 
-    this.desk = this.game.add.graphics(x, y);
-    this.desk.beginFill(color, 1);
-    this.desk.drawRect(0, 0, 100, 50);
+    this.desk = this.game.add.sprite(x, y, 'desk');
 
     this.game.physics.arcade.enable(this.desk);
     this.desk.body.immovable = true;

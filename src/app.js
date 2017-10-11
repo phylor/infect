@@ -7,7 +7,9 @@ import Pathfinder from 'pathfinder';
 import { sample, compact, difference } from 'lodash';
 
 import officeFloor from '../assets/gfx/office_floor.svg';
+import playerWalk from '../assets/gfx/player.png';
 import logo from '../assets/gfx/logo.png';
+import desk from '../assets/gfx/desk.png';
 
 let width = 800;
 let height = 600;
@@ -67,7 +69,9 @@ var timeOfDay = 0;
 
 
 function preload() {
-    game.load.image('floor', officeFloor);
+  game.load.image('floor', officeFloor);
+  game.load.spritesheet('player-walk', playerWalk, 24, 24, 4);
+  game.load.image('desk', desk);
 }
 
 function create() {
@@ -144,9 +148,9 @@ function create() {
       }
     });
     
-    playerSprite = game.add.graphics(width/2, height/2);
-    playerSprite.beginFill(0xFF0000, 0.5);
-    playerSprite.drawCircle(0, 0, 40);
+    playerSprite = game.add.sprite(width/2, height/2, 'player-walk');
+    playerSprite.animations.add('walk');
+    playerSprite.animations.play('walk', 10, true);
     playerSprite.anchor.set(0.5, 0.5);
     game.physics.arcade.enable(playerSprite);
     playerSprite.body.collideWorldBounds = true;
